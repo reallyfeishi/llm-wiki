@@ -6,7 +6,7 @@ triggers: ["wiki", "wiki ingest", "wiki add", "wiki query", "wiki lint", "wiki h
 
 # LLM Wiki Skill
 
- Andrej Karpathy 提出的 LLM Wiki 模式的 Claude Code 实现。
+Andrej Karpathy 提出的 LLM Wiki 模式的 Claude Code 实现。
 核心理念：**确定性检索 + 概率性推理**。AI 是园丁，人类拥有验证权。
 
 ## 知识库位置
@@ -57,10 +57,10 @@ knowledge-base/
 5. 返回带引用的回答
 
 ### wiki lint
-1. 扫描孤立页面、断裂链接、过时内容
-2. 检查覆盖率缺口、索引膨胀
-3. 矛盾检测
-4. 生成 lint-report-YYYY-MM-DD.md
+1. 运行 `bash llm-wiki/scripts/health-check.sh knowledge-base/`
+2. 读取生成的 lint-report-YYYY-MM-DD.md
+3. AI 执行矛盾检测（语义分析）
+4. 向用户报告问题，等待决定
 
 ### wiki deep-check
 1. 随机抽样 5 个 wiki 页面
@@ -69,6 +69,8 @@ knowledge-base/
 4. 逐条请求用户确认修复
 
 ## 搜索策略（分层）
+
+详见 SEARCH.md。
 
 1. **第一层**：index.md 确定性匹配（< 50 条目）
 2. **第二层**：`grep -rn "关键词" knowledge-base/wiki/`

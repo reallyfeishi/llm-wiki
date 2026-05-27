@@ -8,7 +8,7 @@ sources:
     ingested: 2026-05-27
 tags: [auth, jwt, security, token]
 category: concept
-links_to: [auth-endpoints, token-lifecycle]
+links_to: [auth-endpoints]
 linked_from: [auth-endpoints]
 status: active
 ---
@@ -46,7 +46,6 @@ status: active
 ## 相关页面
 
 - [[auth-endpoints]]
-- [[token-lifecycle]]
 
 ## 来源
 

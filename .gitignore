@@ -8,17 +8,9 @@ Thumbs.db
 # 忽略 OMC session 状态（含 API 费用、本地路径等元数据）
 .omc/
 
-# 忽略健康检查报告（每次生成新的）
-knowledge-base/wiki/lint-report-*.md
-knowledge-base/wiki/deep-check-report-*.md
-
-# 忽略搜索索引
-knowledge-base/search/*
-!knowledge-base/search/.gitignore
+# 整个 knowledge-base 是用户的私人数据，不纳入 git 跟踪
+knowledge-base/
 
 # 忽略 Python 缓存
 __pycache__/
 *.pyc
-
-# 整个 knowledge-base 是用户的私人数据，不纳入 git 跟踪
-knowledge-base/

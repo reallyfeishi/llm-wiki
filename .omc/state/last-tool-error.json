@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cp -r D:/yuanma/llm-wiki/skill D:/yuanma/.claude/skills/llm-wiki 2>/dev/null; mkdir -p D:/yuanma/.claude/skills/llm-wiki/scripts && cp D:/yuanma/llm-wiki/skill/scripts/health-check.sh D:/y...",
+  "error": "Exit code 1\ncp: cannot stat 'D:/yuanma/llm-wiki/skill/scripts/health-check.sh': No such file or directory",
+  "timestamp": "2026-05-27T14:08:43.061Z",
+  "retry_count": 1
+}

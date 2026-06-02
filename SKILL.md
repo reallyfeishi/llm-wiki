@@ -12,6 +12,28 @@ Andrej Karpathy 提出的 LLM Wiki 模式的 Claude Code 实现。
 
 `D:\yuanma\llm-wiki\knowledge-base\`
 
+## 目录结构规范
+
+每个项目的 `raw/` 和 `wiki/` 必须放在 `knowledge-base/{project-name}/` 下，与 narrative_forge 结构一致：
+
+```
+knowledge-base/
+├── {project-name}/
+│   ├── raw/          # 源文件快照（不可修改）
+│   └── wiki/         # 项目专属 wiki 页面
+│       ├── concepts/
+│       ├── entities/
+│       └── decisions/
+└── wiki/             # 全局文件（总目录、日志）
+    ├── index.md      # 跨项目总索引
+    └── log.md        # 溯源日志
+```
+
+**规则**：
+- `raw/` 和 `wiki/` 不得放在 `knowledge-base/wiki/` 下
+- `knowledge-base/wiki/` 仅保留 `index.md` 和 `log.md` 等全局文件
+- 新项目按此结构创建专属目录
+
 ## 可用操作
 
 | 操作 | 描述 |

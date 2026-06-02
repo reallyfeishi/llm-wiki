@@ -29,25 +29,48 @@ triggers: ["wiki", "wiki ingest", "wiki add", "wiki query", "wiki lint", "wiki h
 
 ```
 knowledge-base/
-├── raw/           # 原始文档（不可变）
-├── wiki/
-│   ├── index.md   # 目录（< 50 条目）
-│   ├── log.md     # 溯源日志
-│   ├── concepts/  # 概念、模式、原则
-│   ├── entities/  # 服务、模块、API
-│   ├── decisions/ # ADR 决策
-│   └── sources/   # 源文档摘要
-└── search/        # 搜索索引（git 忽略）
+├── {project-name}/           # 按项目分类（如 narrative_forge、auth）
+│   ├── raw/
+│   │   └── notes/
+│   │       ├── {name}-{YYYY-MM-DD}.md      # 最新快照（带日期）
+│   │       └── archive/                     # 历史版本（最多保留 3 个）
+│   │           ├── {name}-{old-date}.md
+│   │           └── ...
+│   └── wiki/
+│       ├── index.md          # 项目目录
+│       ├── concepts/         # 概念、模式、原则
+│       ├── entities/         # 服务、模块、API
+│       └── decisions/        # ADR 决策
+├── wiki/                     # 通用/独立页面（不属于特定项目）
+│   ├── index.md              # 总目录
+│   └── log.md                # 溯源日志
+└── search/                   # 搜索索引（git 忽略）
 ```
+
+- 每个项目拥有独立的 `raw/` 和 `wiki/`
+- `knowledge-base/wiki/index.md` 是总目录，引用所有项目的页面
+- `sources.path` 使用相对于 wiki 页面的路径（如 `../raw/notes/xxx.md`）
 
 ## 工作流
 
-### wiki ingest
-1. 读取指定的 raw/ 文档
-2. 按 schema 提取概念/实体/决策
-3. 创建 wiki 页面（frontmatter + 行号引用）
-4. 更新 index.md、反向链接、log.md
-5. 等待用户审核
+### wiki ingest（首次摄入）
+1. 在 `knowledge-base/` 下创建 `{project-name}/` 目录（如不存在）
+2. 生成快照 `{project-name}/raw/notes/项目名-YYYY-MM-DD.md`
+3. 读取指定的 raw/ 文档
+4. 按 schema 提取概念/实体/决策
+5. 创建 wiki 页面到 `{project-name}/wiki/`（frontmatter + 行号引用）
+6. 更新项目 `index.md`、总 `index.md`、反向链接、log.md
+7. 等待用户审核
+
+### wiki ingest（更新模式）
+1. 生成新快照 `{project-name}/raw/notes/项目名-YYYY-MM-DD.md`
+2. 将旧版本移入 `{project-name}/raw/notes/archive/`
+3. 检查 archive/ 数量，超过 3 个时删除最旧的一个
+4. 对比新 raw 与旧 raw 的差异
+5. 更新受影响的 wiki 页面（修正事实、更新 `sources.path` 指向最新 raw）
+6. 更新 wiki 页面的 `updated` 日期和 `ingested` 日期
+7. 更新项目 `index.md` 和总 `index.md`，以及 `log.md`
+8. 等待用户审核
 
 ### wiki query
 1. 读 index.md 确定性匹配
@@ -70,8 +93,8 @@ knowledge-base/
 
 ## 搜索策略（分层）
 
-1. **第一层**：index.md 确定性匹配（< 50 条目）
-2. **第二层**：`grep -rn "关键词" knowledge-base/wiki/`
+1. **第一层**：`knowledge-base/wiki/index.md` 总目录确定性匹配
+2. **第二层**：`grep -rn "关键词" knowledge-base/*/wiki/` 按项目搜索
 3. **第三层**：qmd BM25 + 向量混合搜索（> 100 页面可选）
 
 ## 引用格式

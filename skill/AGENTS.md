@@ -36,6 +36,19 @@
 
 3. **删除页面必须先在 log.md 记录原因**
 
+4. **raw 快照滚动保留**
+   - 每次 ingest 生成带日期的新快照
+   - 旧版本移入 `raw/notes/archive/`
+   - archive/ 最多保留 3 个，超出时删除最旧的
+
+5. **wiki 页面 sources 始终指向最新 raw**
+   - `sources.path` 必须指向最新日期的 raw 文件
+   - 不得指向 `archive/` 中的旧版本
+
+6. **raw 文件命名格式统一**
+   - 格式：`{项目名}-{描述}-{YYYY-MM-DD}.md`
+   - 所有 raw 文件都带日期后缀，无例外
+
 ## 搜索规则 (Search Rules)
 
 1. **index.md 条目超过 50 时必须启用 grep 搜索辅助**

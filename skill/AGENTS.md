@@ -74,8 +74,34 @@
 4. 标记：`[正确]` `[偏差]` `[缺失]` `[过度推断]`
 5. 生成 drift report，逐条请求用户确认修复
 
+## 验证规则 (Verification Rules)
+
+1. **信任层级**：当不同来源信息冲突时
+   - **代码 > 测试 > 技术文档 > README/营销文案**
+   - 以最高可信度来源为准，标注来源：`[来源: 代码验证]` / `[来源: 文档声明 - 待验证]`
+   - 文档与代码不一致时标记 `[差异]`，格式：`[文档声明: X] vs [代码实际: Y]`
+
+2. **安全敏感查询强制代码验证**
+   - 查询涉及以下关键词时，必须先 grep 扫描项目实际代码：
+     `api_key, apikey, secret, token, password, auth, login, signin, encrypt, decrypt, Bearer, localStorage, sessionStorage, cookie, sk-`
+   - 无代码验证结果时标注：`[未验证 - 建议运行 wiki verify]`
+
+3. **ingest 时可选代码验证**
+   - 用户提供项目代码路径时，执行安全模式扫描
+   - 对比 raw 文档声明与代码实际，差异写入 `{project}/wiki/verifications/` 目录
+   - 验证报告引用格式：`^[verification/{report}:L-L]`
+
+4. **安全敏感模式（grep 验证用）**
+   - `"sk-[a-zA-Z0-9]{20,}"` — 硬编码 API 密钥
+   - `"(password|passwd|pwd|secret|token|api_key|apikey)\s*[:=]\s*['\"]"` — 硬编码密码/密钥
+   - `"Bearer\s+[a-zA-Z0-9_-]{10,}"` — 硬编码 Bearer Token
+   - `"Authorization:\s*Basic\s+"` — 硬编码 Basic Auth
+   - `"-----BEGIN\s+(RSA\s+)?PRIVATE"` — 私钥文件
+   - `"localStorage\.setItem.*token"` — Token 存 localStorage
+
 ## 核心原则
 
 - **人类拥有验证权**：Human owns verification
 - **AI 是园丁**：可以浇水、除草、修枝，但种什么花、开什么园、哪棵该留哪棵该剪——人类说了算
 - **确定性检索 + 概率性推理**：找的部分交给工具，想的部分交给 AI
+- **代码是唯一的真相**：文档可能过时，代码不会撒谎

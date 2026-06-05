@@ -1,7 +1,7 @@
 ---
 name: llm-wiki
 description: 持久化、带溯源的个人知识库。支持写入（ingest/add）、查询（query）、维护（lint/health）、浏览（list/read）。通过行号级引用防漂移，通过体检防孤岛，通过分层搜索防找不到。
-triggers: ["wiki", "wiki ingest", "wiki add", "wiki query", "wiki lint", "wiki health", "wiki deep-check", "wiki list", "wiki read"]
+triggers: ["wiki", "wiki ingest", "wiki add", "wiki query", "wiki lint", "wiki health", "wiki deep-check", "wiki list", "wiki read", "wiki verify"]
 ---
 
 # LLM Wiki Skill
@@ -24,6 +24,7 @@ triggers: ["wiki", "wiki ingest", "wiki add", "wiki query", "wiki lint", "wiki h
 | 每月深检 | `wiki deep-check` | 深度检查：随机抽样逐条比对源文件 |
 | 列表 | `wiki list` | 显示 index.md 目录 |
 | 读取 | `wiki read` | 读取指定页面 |
+| 验证 | `wiki verify` | 扫描项目源代码，生成代码验证报告 |
 
 ## 目录结构
 
@@ -73,11 +74,30 @@ knowledge-base/
 8. 等待用户审核
 
 ### wiki query
-1. 读 index.md 确定性匹配
-2. 不足时用 grep 搜索 wiki/
-3. 读取匹配页面全文
-4. 在检索结果上综合推理
-5. 返回带引用的回答
+1. 检测查询是否涉及安全敏感关键词（api_key, secret, token, password, auth, encrypt, decrypt, Bearer, localStorage, sessionStorage, cookie, sk-）
+2. 如涉及安全关键词：
+   - 先读取 `{project}/wiki/verifications/` 下的验证报告（如有）
+   - 无验证报告时，用 grep 扫描项目代码中的相关模式
+3. 读 index.md 确定性匹配
+4. 不足时用 grep 搜索 wiki/
+5. 读取匹配页面全文
+6. 在检索结果上综合推理，标注来源信任层级
+7. 返回带引用的回答
+
+### wiki verify
+1. 确认项目代码路径（用户提供或从 raw 文档中推断）
+2. 用 grep 扫描代码中的安全敏感模式：
+   - `"sk-[a-zA-Z0-9]{20,}"` — 硬编码 API 密钥
+   - `"(password|passwd|pwd|secret|token|api_key|apikey)\s*[:=]\s*['\"]"` — 硬编码密码/密钥
+   - `"Bearer\s+[a-zA-Z0-9_-]{10,}"` — 硬编码 Bearer Token
+   - `"Authorization:\s*Basic\s+"` — 硬编码 Basic Auth
+   - `"-----BEGIN\s+(RSA\s+)?PRIVATE"` — 私钥文件
+   - `"localStorage\.setItem.*token"` — Token 存 localStorage
+3. 对比 wiki 页面中的安全声明与扫描结果
+4. 生成验证报告到 `{project}/wiki/verifications/{project}-security-scan-YYYY-MM-DD.md`
+5. 更新相关页面的 frontmatter verification 字段
+6. 标记差异页面 status 为 `needs-verification`
+7. 等待用户审核
 
 ### wiki lint
 1. 扫描孤立页面、断裂链接、过时内容
@@ -101,11 +121,23 @@ knowledge-base/
 
 - **行内引用**：`^[filename:L-L]`
 - **来源标注**：`-- raw/filename.md, L128`
+- **验证报告引用**：`^[verification/{report}:L-L]`
 - **Wiki 链接**：`[[page-slug]]`
+
+## 来源信任标注
+
+- `[来源: 代码验证]` — 来自代码扫描确认
+- `[来源: 单元测试]` — 来自测试代码验证
+- `[来源: 技术文档]` — 来自文档声明
+- `[来源: README]` — 来自 README 声明（可信度最低）
+- `[待验证]` — 文档声明但代码未验证
+- `[差异]` — 文档与代码不一致，格式：`[文档声明: X] vs [代码实际: Y]`
+- `[未验证 - 建议运行 wiki verify]` — 无验证报告
 
 ## 规则
 
-详见 AGENTS.md。核心三条：
+详见 AGENTS.md。核心四条：
 1. 每个关键事实必须标注来源行号
 2. 数字/百分比/结论不得用 AI 的话重述
 3. 没有来源的断言标记为 `[推测]`
+4. **代码是唯一的真相**：文档与代码冲突时以代码为准（详见 AGENTS.md 验证规则）

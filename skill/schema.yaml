@@ -20,6 +20,10 @@ category: concept|entity|decision|source-summary  # 分类
 links_to: [page-slug-1]      # 引用的 wiki 页面
 linked_from: [page-slug-2]   # 引用本页面的页面（自动维护）
 status: active|stale|orphan|draft|needs-verification  # 状态
+verification:                    # 代码验证信息（可选）
+  last_scan: YYYY-MM-DD          # 最后代码扫描日期
+  code_status: verified|discrepancy|not_scanned  # 代码验证状态
+  trust_level: code|tests|docs|readme  # 最高可信来源层级
 ---
 ```
 

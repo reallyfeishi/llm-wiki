@@ -56,12 +56,15 @@ knowledge-base/
 
 ### wiki ingest（首次摄入）
 1. 在 `knowledge-base/` 下创建 `{project-name}/` 目录（如不存在）
-2. 生成快照 `{project-name}/raw/notes/项目名-YYYY-MM-DD.md`
-3. 读取指定的 raw/ 文档
-4. 按 schema 提取概念/实体/决策
-5. 创建 wiki 页面到 `{project-name}/wiki/`（frontmatter + 行号引用）
-6. 更新项目 `index.md`、总 `index.md`、反向链接、log.md
-7. 等待用户审核
+2. 创建 `{project-name}/wiki/index.md` 项目专属索引（如不存在）
+3. 生成快照 `{project-name}/raw/notes/项目名-YYYY-MM-DD.md`
+4. 读取指定的 raw/ 文档
+5. 按 schema 提取概念/实体/决策
+6. 创建 wiki 页面到 `{project-name}/wiki/`（frontmatter + 行号引用）
+7. 更新**项目** `{project-name}/wiki/index.md`（本地条目，短 slug）
+8. 更新**总** `knowledge-base/wiki/index.md`（项目级引用）
+9. 更新反向链接、log.md
+10. 等待用户审核
 
 ### wiki ingest（更新模式）
 1. 生成新快照 `{project-name}/raw/notes/项目名-YYYY-MM-DD.md`
@@ -70,7 +73,7 @@ knowledge-base/
 4. 对比新 raw 与旧 raw 的差异
 5. 更新受影响的 wiki 页面（修正事实、更新 `sources.path` 指向最新 raw）
 6. 更新 wiki 页面的 `updated` 日期和 `ingested` 日期
-7. 更新项目 `index.md` 和总 `index.md`，以及 `log.md`
+7. 更新**项目** `{project-name}/wiki/index.md` 和**总** `knowledge-base/wiki/index.md`，以及 `log.md`
 8. 等待用户审核
 
 ### wiki query
